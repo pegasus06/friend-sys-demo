@@ -10,4 +10,6 @@ import com.ryan.userCenter.domain.User;
 */
 public interface UserService extends IService<User> {
 
+    long userRegister(String userName,String password,String checkPassword);
+    User doLogin(String userName,String password);
 }
