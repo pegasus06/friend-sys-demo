@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ryan.userCenter.domain.User;
 import com.ryan.userCenter.mapper.UserMapper;
 import com.ryan.userCenter.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     private static final String SALT = "rui";
     private final UserMapper userMapper;
+    private static final String USER_LOGIN_STATE="loginState";
 
     public UserServiceImpl(UserMapper userMapper) {
         this.userMapper = userMapper;
@@ -62,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User doLogin(String userAccount, String password) {
+    public User doLogin(String userAccount, String password, HttpServletRequest httpServletRequest) {
         if (StringUtils.isAnyBlank(userAccount, password)) {
             return null;
         }
@@ -86,6 +88,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("用户名或密码错误");
             return null;
         }
+        User safeUser = new User();
+        httpServletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
         return user;
     }
 }
