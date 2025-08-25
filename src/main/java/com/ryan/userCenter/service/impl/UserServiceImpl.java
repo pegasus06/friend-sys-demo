@@ -14,6 +14,8 @@ import org.springframework.util.DigestUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.ryan.userCenter.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
  * @author RZ
  * @description 针对表【user(用户)】的数据库操作Service实现
@@ -26,7 +28,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     private static final String SALT = "rui";
     private final UserMapper userMapper;
-    private static final String USER_LOGIN_STATE="loginState";
 
     public UserServiceImpl(UserMapper userMapper) {
         this.userMapper = userMapper;
@@ -36,6 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long userRegister(String userAccount, String password, String checkPassword) {
         if (StringUtils.isAnyBlank(userAccount, password, checkPassword)) {
+            //todo 修改为自定义异常
             return -1;
         }
         if (userAccount.length() < 4) {
@@ -84,13 +86,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         wrapper.eq("userAccount", userAccount);
         wrapper.eq("userPassword", encryptPassword);
         User user = userMapper.selectOne(wrapper);
-        if (user==null){
+        if (user == null) {
             log.info("用户名或密码错误");
             return null;
         }
+        /**
+         * 限流操作
+         */
+        //用户信息脱敏
+        User safeUser = getSafetyUser(user);
+        httpServletRequest.getSession().setAttribute(USER_LOGIN_STATE, user);
+        return safeUser;
+    }
+    @Override
+    public User getSafetyUser(User user) {
         User safeUser = new User();
-        httpServletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
-        return user;
+        safeUser.setId(user.getId());
+        safeUser.setUsername(user.getUsername());
+        safeUser.setUseraccount(user.getUseraccount());
+        safeUser.setPhone(user.getPhone());
+        safeUser.setEmail(user.getEmail());
+        safeUser.setAvatarurl(user.getAvatarurl());
+        safeUser.setCreatetime(user.getCreatetime());
+        safeUser.setAvatarurl(user.getAvatarurl());
+        safeUser.setGender(user.getGender());
+        safeUser.setUserstatus(user.getUserstatus());
+        safeUser.setUserrole(user.getUserrole());
+        return safeUser;
     }
 }
 

@@ -12,6 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 */
 public interface UserService extends IService<User> {
 
+
     long userRegister(String userName,String password,String checkPassword);
     User doLogin(String userName, String password, HttpServletRequest httpServlet);
+
+    User getSafetyUser(User user);
 }

@@ -23,6 +23,10 @@ public class User {
      * 用户昵称
      */
     private String username;
+    /**
+     * 角色0 -普通用户 1-管理员
+     */
+    private Integer role;
 
     /**
      * 账号
