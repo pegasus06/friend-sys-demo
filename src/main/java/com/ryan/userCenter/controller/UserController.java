@@ -79,6 +79,20 @@ public class UserController {
 
     }
 
+    @GetMapping("/current")
+    public User getCurrentUser(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (user==null){
+            return null;
+        }
+        Long id = user.getId();
+        //todo 校验用户是否合法
+        User user1 = userService.getById(id);
+        return userService.getSafetyUser(user1);
+    }
+
+
+
     private boolean isAdmin(HttpServletRequest request) {
         Object userAttribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userAttribute;

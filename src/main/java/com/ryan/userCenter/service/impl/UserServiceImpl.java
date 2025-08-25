@@ -98,8 +98,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         httpServletRequest.getSession().setAttribute(USER_LOGIN_STATE, user);
         return safeUser;
     }
+
     @Override
     public User getSafetyUser(User user) {
+        if (user == null) {
+            return null;
+        }
         User safeUser = new User();
         safeUser.setId(user.getId());
         safeUser.setUsername(user.getUsername());
