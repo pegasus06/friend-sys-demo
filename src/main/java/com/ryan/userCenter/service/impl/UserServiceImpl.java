@@ -35,7 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     @Override
-    public long userRegister(String userAccount, String password, String checkPassword) {
+    public long userRegister(String userAccount, String password, String checkPassword, String planetCode) {
         if (StringUtils.isAnyBlank(userAccount, password, checkPassword)) {
             //todo 修改为自定义异常
             return -1;
@@ -46,6 +46,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (password.length() < 4 || checkPassword.length() < 4) {
             return -1;
         }
+        if (planetCode.length() > 5) {
+            return -1;
+        }
         String validateReg = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validateReg).matcher(userAccount);
         if (matcher.find()) {
@@ -54,10 +57,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (!password.equals(checkPassword)) {
             return -1;
         }
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("planetCode", planetCode);
+        Long count = userMapper.selectCount(wrapper);
+        if (count > 0) {
+            return -1;
+        }
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         User user = new User();
         user.setUseraccount(userAccount);
         user.setUserpassword(encryptPassword);
+        user.setPlanetcode(planetCode);
         boolean save = this.save(user);
         if (!save) {
             return -1;
@@ -116,7 +126,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safeUser.setGender(user.getGender());
         safeUser.setUserstatus(user.getUserstatus());
         safeUser.setUserrole(user.getUserrole());
+        safeUser.setPlanetcode(user.getPlanetcode());
         return safeUser;
+    }
+
+    @Override
+    public int userLogOut(HttpServletRequest httpServletRequest) {
+        httpServletRequest.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
     }
 }
 

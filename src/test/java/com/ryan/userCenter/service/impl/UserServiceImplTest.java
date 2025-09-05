@@ -11,7 +11,7 @@ class UserServiceImplTest {
     private UserServiceImpl userService;
     @Test
     void userRegister() {
-        long ryan = userService.userRegister("ryan", "123456", "123456");
+        long ryan = userService.userRegister("ryan", "123456", "123456", );
         Assertions.assertNotEquals(-1,ryan);
     }
 

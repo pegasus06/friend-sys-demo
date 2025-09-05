@@ -31,10 +31,11 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        String planetCode=userRegisterRequest.getPlanetCode();
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,planetCode)) {
             return null;
         }
-        return userService.userRegister(userAccount, userPassword, checkPassword);
+        return userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
     }
 
     @PostMapping("/login")
@@ -82,7 +83,7 @@ public class UserController {
     @GetMapping("/current")
     public User getCurrentUser(HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
-        if (user==null){
+        if (user == null) {
             return null;
         }
         Long id = user.getId();
@@ -91,7 +92,13 @@ public class UserController {
         return userService.getSafetyUser(user1);
     }
 
-
+    @PostMapping("/logout")
+    public Integer userLogout(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return userService.userLogOut(request);
+    }
 
     private boolean isAdmin(HttpServletRequest request) {
         Object userAttribute = request.getSession().getAttribute(USER_LOGIN_STATE);

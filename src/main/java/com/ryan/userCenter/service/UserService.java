@@ -2,7 +2,6 @@ package com.ryan.userCenter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ryan.userCenter.domain.User;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -13,8 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface UserService extends IService<User> {
 
 
-    long userRegister(String userName,String password,String checkPassword);
+    long userRegister(String userName,String password,String checkPassword,String planetCode);
     User doLogin(String userName, String password, HttpServletRequest httpServlet);
 
     User getSafetyUser(User user);
+    int userLogOut(HttpServletRequest httpServletRequest);
 }
