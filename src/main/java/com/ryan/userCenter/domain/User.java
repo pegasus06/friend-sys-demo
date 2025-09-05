@@ -8,10 +8,11 @@ import java.util.Date;
 
 /**
  * 用户
+ *
  * @TableName user
  */
 @Data
-@TableName(value ="user")
+@TableName(value = "user")
 public class User {
     /**
      * id
@@ -69,7 +70,7 @@ public class User {
     private Date createtime;
 
     /**
-     * 
+     *
      */
     private Date updatetime;
 

@@ -2,18 +2,19 @@ package com.ryan.userCenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ryan.userCenter.common.BaseResponse;
+import com.ryan.userCenter.common.ErrorCode;
 import com.ryan.userCenter.common.ResultUtils;
 import com.ryan.userCenter.domain.User;
 import com.ryan.userCenter.domain.request.UserLoginRequest;
 import com.ryan.userCenter.domain.request.UserRegisterRequest;
+import com.ryan.userCenter.exception.BussinessException;
 import com.ryan.userCenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.transform.Result;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,14 +30,14 @@ public class UserController {
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
-            return null;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         String planetCode = userRegisterRequest.getPlanetCode();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
-            return null;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         return ResultUtils.success(result);
@@ -45,12 +46,12 @@ public class UserController {
     @PostMapping("/login")
     public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.doLogin(userAccount, userPassword, request);
         return ResultUtils.success(user);
@@ -59,8 +60,8 @@ public class UserController {
 
     @GetMapping("/search")
     public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
-        if (!isAdmin(request)) {
-            return null;
+        if (isAdmin(request)) {
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(username)) {
@@ -76,11 +77,11 @@ public class UserController {
 
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteUser(@RequestBody int id, HttpServletRequest request) {
-        if (!isAdmin(request)) {
-            return null;
+        if (isAdmin(request)) {
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         if (id < 0) {
-            return null;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         return ResultUtils.success(userService.removeById(id));
 
@@ -90,7 +91,7 @@ public class UserController {
     public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
         if (user == null) {
-            return null;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         Long id = user.getId();
         //todo 校验用户是否合法
@@ -101,7 +102,7 @@ public class UserController {
     @PostMapping("/logout")
     public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request == null) {
-            return null;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR);
         }
         return ResultUtils.success(userService.userLogOut(request));
     }
@@ -109,7 +110,7 @@ public class UserController {
     private boolean isAdmin(HttpServletRequest request) {
         Object userAttribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userAttribute;
-        return user != null && user.getRole() == ADMIN_ROLE;
+        return user == null || user.getRole() != ADMIN_ROLE;
     }
 
 }

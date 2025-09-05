@@ -2,7 +2,9 @@ package com.ryan.userCenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ryan.userCenter.common.ErrorCode;
 import com.ryan.userCenter.domain.User;
+import com.ryan.userCenter.exception.BussinessException;
 import com.ryan.userCenter.mapper.UserMapper;
 import com.ryan.userCenter.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,30 +40,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public long userRegister(String userAccount, String password, String checkPassword, String planetCode) {
         if (StringUtils.isAnyBlank(userAccount, password, checkPassword)) {
             //todo 修改为自定义异常
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "参数过短");
         }
         if (password.length() < 4 || checkPassword.length() < 4) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "密码过短");
+
         }
         if (planetCode.length() > 5) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "星球代码过长");
+
         }
         String validateReg = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validateReg).matcher(userAccount);
         if (matcher.find()) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "用户名包含特殊字符");
         }
         if (!password.equals(checkPassword)) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
         }
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("planetCode", planetCode);
         Long count = userMapper.selectCount(wrapper);
         if (count > 0) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "已存在用户");
         }
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         User user = new User();
@@ -70,7 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setPlanetcode(planetCode);
         boolean save = this.save(user);
         if (!save) {
-            return -1;
+            throw new BussinessException(ErrorCode.PARAMS_ERROR, "系统错误");
         }
         return user.getId();
     }
