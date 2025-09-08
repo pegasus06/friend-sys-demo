@@ -1,13 +1,6 @@
 spring:
   application:
     name: user-center
-  datasource: # ?????
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://121.43.184.212:13306/userCenter
-    username: root
-    password: 123456
-  session:
-    timeout: 86400
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false

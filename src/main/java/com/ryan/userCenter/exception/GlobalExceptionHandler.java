@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 //全局异常处理
 public class GlobalExceptionHandler {
-    @ExceptionHandler(RuntimeException.class)
-    public <T> BaseResponse<T> businessExceptionHandler(BussinessException e) {
+    @ExceptionHandler(BusinessException.class)
+    public <T> BaseResponse<T> businessExceptionHandler(BusinessException e) {
         log.error("业务异常：{}", e.getMessage(), e);
         return ResultUtils.error(e.getCode(), e.getMessage(), e.getDescription());
     }
