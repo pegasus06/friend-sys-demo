@@ -11,10 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.ryan.userCenter.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -139,6 +143,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         httpServletRequest.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
     }
+
+    @Override
+    public List<User> searchUsersByTags(List<String> tagNames) {
+        if (CollectionUtils.isEmpty(tagNames)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        tagNames.forEach(
+                tagName -> wrapper.or().like("tags", tagName)
+        );
+        return userMapper.selectList(wrapper);
+    }
+
+
 }
 
 

@@ -1,4 +1,4 @@
-package com.ryan.userCenter.controller;
+package com.ryan.userCenter.constant.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ryan.userCenter.common.BaseResponse;
@@ -110,7 +110,7 @@ public class UserController {
     private boolean isAdmin(HttpServletRequest request) {
         Object userAttribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userAttribute;
-        return user == null || user.getRole() != ADMIN_ROLE;
+        return user == null || user.getUserrole() != ADMIN_ROLE;
     }
 
 }

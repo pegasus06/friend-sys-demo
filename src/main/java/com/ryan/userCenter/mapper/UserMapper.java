@@ -1,7 +1,7 @@
 package com.ryan.userCenter.mapper;
 
-import com.ryan.userCenter.domain.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ryan.userCenter.domain.User;
 
 /**
 * @author RZ
