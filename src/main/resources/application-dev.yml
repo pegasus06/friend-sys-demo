@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: friend-sys
+  session:
+    timeout: 86400
+server:
+  port: 8080
+
+ryan:
+  mysql:
+    address: 121.43.184.212:13306
+    database: friend-sys
+    username: root
+    password: 123456
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  packages-to-scan: com.ryan.userCenter.controller

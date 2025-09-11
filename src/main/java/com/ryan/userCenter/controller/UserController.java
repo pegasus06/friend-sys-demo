@@ -1,4 +1,4 @@
-package com.ryan.userCenter.constant.controller;
+package com.ryan.userCenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ryan.userCenter.common.BaseResponse;

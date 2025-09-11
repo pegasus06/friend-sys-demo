@@ -2,6 +2,8 @@ package com.ryan.userCenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ryan.userCenter.common.ErrorCode;
 import com.ryan.userCenter.domain.User;
 import com.ryan.userCenter.exception.BusinessException;
@@ -14,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -135,6 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safeUser.setUserstatus(user.getUserstatus());
         safeUser.setUserrole(user.getUserrole());
         safeUser.setPlanetcode(user.getPlanetcode());
+        safeUser.setTags(user.getTags());
         return safeUser;
     }
 
@@ -150,10 +152,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        tagNames.forEach(
-                tagName -> wrapper.or().like("tags", tagName)
-        );
-        return userMapper.selectList(wrapper);
+//        tagNames.forEach(
+//                tagName -> wrapper.or().like("tags", tagName)
+//        );
+        List<User> userList = userMapper.selectList(wrapper);
+        Gson gson = new Gson();
+        return userList.stream().filter(user -> {
+            String tags = user.getTags();
+            if (StringUtils.isBlank(tags)) {
+                return false;
+            }
+            Set<String> tagsJson = gson.fromJson(tags, new TypeToken<Set<String>>() {
+            }.getType());
+            tagsJson = Optional.ofNullable(tagsJson).orElse(new HashSet<>());
+            for (String tagName : tagNames) {
+                if (!tagsJson.contains(tagName)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(this::getSafetyUser).collect(Collectors.toList());
     }
 
 
