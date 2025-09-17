@@ -1,6 +1,7 @@
 package com.ryan.userCenter.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ryan.userCenter.common.BaseResponse;
 import com.ryan.userCenter.common.ErrorCode;
 import com.ryan.userCenter.common.ResultUtils;
@@ -119,10 +120,9 @@ public class UserController {
     }
 
     @GetMapping("/recommend")
-    public BaseResponse<List<User>> getRecommend() {
+    public BaseResponse<Page<User>> getRecommend(long pageSize, long pageNum) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        List<User> list = userService.list(wrapper);
-        List<User> users = list.stream().map(user -> userService.getSafetyUser(user)).toList();
+        Page<User> users = userService.page(new Page<>(pageSize, pageNum), wrapper);
         return ResultUtils.success(users);
     }
 
