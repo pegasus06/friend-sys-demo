@@ -11,9 +11,6 @@ spring:
     url: jdbc:mysql://${ryan.mysql.address}/${ryan.mysql.database}?useUnicode=true&characterEncoding=utf8
     username: ${ryan.mysql.username}
     password: ${ryan.mysql.password}
-  session:
-    store-type: redis
-    timeout: 86400
   configuration:
     map-underscore-to-camel-case: false
     log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl

@@ -118,6 +118,14 @@ public class UserController {
         return ResultUtils.success(users);
     }
 
+    @GetMapping("/recommend")
+    public BaseResponse<List<User>> getRecommend() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        List<User> list = userService.list(wrapper);
+        List<User> users = list.stream().map(user -> userService.getSafetyUser(user)).toList();
+        return ResultUtils.success(users);
+    }
+
     private boolean isAdmin(HttpServletRequest request) {
         Object userAttribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userAttribute;

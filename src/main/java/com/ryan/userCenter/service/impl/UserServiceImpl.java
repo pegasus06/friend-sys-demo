@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.ryan.userCenter.constant.UserConstant.ADMIN_ROLE;
 import static com.ryan.userCenter.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -172,6 +173,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             return true;
         }).map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    @Override
+    public int updateUser(User user, User loginUser) {
+        Long id = user.getId();
+        if (id < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        if (!isAdmin(user) && id != loginUser.getId()) {
+            throw new BusinessException(ErrorCode.System_ERROR);
+        }
+        User userE = userMapper.selectById(id);
+        if (userE == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return userMapper.updateById(user);
+    }
+
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        User loginUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return loginUser;
+    }
+
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+        User loginUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        return loginUser != null && loginUser.getUserrole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && user.getUserrole() == ADMIN_ROLE;
     }
 
 
