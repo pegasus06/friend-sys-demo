@@ -12,6 +12,7 @@ import com.ryan.userCenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,6 +24,7 @@ import static com.ryan.userCenter.constant.UserConstant.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = {"http://localhost:5173/"})
 public class UserController {
     @Resource
     private UserService userService;
@@ -105,6 +107,15 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         return ResultUtils.success(userService.userLogOut(request));
+    }
+
+    @PostMapping("/search/tags")
+    public BaseResponse<List<User>> searchTags(List<String> tags) {
+        if (CollectionUtils.isEmpty(tags)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> users = userService.searchUsersByTags(tags);
+        return ResultUtils.success(users);
     }
 
     private boolean isAdmin(HttpServletRequest request) {

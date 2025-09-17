@@ -12,8 +12,8 @@ spring:
     username: ${ryan.mysql.username}
     password: ${ryan.mysql.password}
   session:
+    store-type: redis
     timeout: 86400
-mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
     log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl

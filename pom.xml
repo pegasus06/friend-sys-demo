@@ -40,6 +40,7 @@
             <artifactId>easyexcel</artifactId>
             <version>3.1.0</version>
         </dependency>
+
         <!-- knife4j 接口文档 -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
