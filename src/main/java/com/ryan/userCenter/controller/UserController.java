@@ -12,23 +12,31 @@ import com.ryan.userCenter.exception.BusinessException;
 import com.ryan.userCenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.ryan.userCenter.constant.UserConstant.ADMIN_ROLE;
 import static com.ryan.userCenter.constant.UserConstant.USER_LOGIN_STATE;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = {"http://localhost:5173/"})
 public class UserController {
     @Resource
     private UserService userService;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -120,10 +128,25 @@ public class UserController {
     }
 
     @GetMapping("/recommend")
-    public BaseResponse<Page<User>> getRecommend(long pageSize, long pageNum) {
+    public BaseResponse<Page<User>> getRecommend(long pageSize, long pageNum, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        String key = String.format("ryan:user:recommend:%s", loginUser.getId());
+        ValueOperations<Object, Object> opsForValue = redisTemplate.opsForValue();
+        //如果有缓存，直接读取
+        Page<User> userPage = (Page<User>) opsForValue.get(key);
+        if (userPage != null) {
+            return ResultUtils.success(userPage);
+        }
+        //无缓存，查数据库
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        Page<User> users = userService.page(new Page<>(pageSize, pageNum), wrapper);
-        return ResultUtils.success(users);
+        userPage = userService.page(new Page<>(pageSize, pageNum), wrapper);
+        //写入缓存
+        try {
+            opsForValue.set(key, userPage, 300000, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("redis key invalid");
+        }
+        return ResultUtils.success(userPage);
     }
 
     private boolean isAdmin(HttpServletRequest request) {
