@@ -5,12 +5,13 @@ spring:
     timeout: 86400
     store-type: redis
     domain:
-      cookie: localhost
+      cookie: 121.43.184.212:6379
   data:
     redis:
       database: 0
       port: 6379
-      host: localhost
+      host: 121.43.184.212
+      password: 123456
 server:
   port: 8080
 
