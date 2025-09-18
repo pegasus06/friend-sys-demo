@@ -23,7 +23,7 @@ public class PreCacheJob {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
+    //todo 抓取用户数据，循环赋予redis键
     private final List<Long> mainUserList = List.of(1L);
 
 
