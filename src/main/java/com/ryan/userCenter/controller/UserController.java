@@ -144,7 +144,7 @@ public class UserController {
         try {
             opsForValue.set(key, userPage, 300000, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.error("redis key invalid");
+            log.error("redis key invalid",e);
         }
         return ResultUtils.success(userPage);
     }

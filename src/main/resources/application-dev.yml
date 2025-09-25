@@ -8,7 +8,7 @@ spring:
       cookie: 121.43.184.212:6379
   data:
     redis:
-      database: 0
+      database: 3
       port: 6379
       host: 121.43.184.212
       password: 123456

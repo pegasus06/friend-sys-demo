@@ -41,10 +41,6 @@ public class RedissonTest {
 
         RMap<Object, Object> map1 = redissonClient.getMap("test-map");
 
-        // set
-
-        // stack
-
 
     }
 }
