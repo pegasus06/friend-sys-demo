@@ -34,23 +34,31 @@ public class PreCacheJob {
     @Scheduled(cron = "0 */5 * * * *")
     public void doRecommendCache() {
         RLock lock = redissonClient.getLock("ryan:precacheJob:doCache:lock");
+
         try {
-            for (long userId : mainUserList) {
-                QueryWrapper<User> wrapper = new QueryWrapper<>();
-                wrapper.like("userId", userId);
-                Page<User> page = userService.page(new Page<>(1, 20), wrapper);
-                String format = String.format("ryan:user:recommend:%s", mainUserList);
-                ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-                try {
-                    valueOperations.set(format, page, 30000, TimeUnit.MILLISECONDS);
-                } catch (Exception e) {
-                    log.info("redis write error");
+            // 尝试获取锁，等待5秒，锁持有300秒后自动释放
+            if (lock.tryLock(5, 300, TimeUnit.SECONDS)) {
+                for (long userId : mainUserList) {
+                    QueryWrapper<User> wrapper = new QueryWrapper<>();
+                    wrapper.eq("userId", userId);  // 使用eq而不是like
+
+                    Page<User> page = userService.page(new Page<>(1, 20), wrapper);
+
+                    // 为每个用户生成独立的Redis键
+                    String redisKey = String.format("ryan:user:recommend:%s", userId);
+                    ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+
+                    try {
+                        // 设置合理的过期时间（如10分钟）
+                        valueOperations.set(redisKey, page, 10, TimeUnit.MINUTES);
+                    } catch (Exception e) {
+                        log.error("redis write error for user: {}", userId, e);
+                    }
                 }
             }
         } catch (Exception e) {
             log.error("doCacheRecommendUser error", e);
         } finally {
-            //释放锁
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
