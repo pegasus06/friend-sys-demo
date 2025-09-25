@@ -40,7 +40,7 @@ public class PreCacheJob {
             if (lock.tryLock(5, 300, TimeUnit.SECONDS)) {
                 for (long userId : mainUserList) {
                     QueryWrapper<User> wrapper = new QueryWrapper<>();
-                    wrapper.eq("userId", userId);  // 使用eq而不是like
+                    wrapper.eq("userId", userId);  // 使用eq
 
                     Page<User> page = userService.page(new Page<>(1, 20), wrapper);
 
