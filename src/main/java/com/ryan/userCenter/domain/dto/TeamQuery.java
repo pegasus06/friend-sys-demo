@@ -1,6 +1,5 @@
-package com.ryan.userCenter.domain.request;
+package com.ryan.userCenter.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

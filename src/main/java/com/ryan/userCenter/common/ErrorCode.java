@@ -13,6 +13,7 @@ public enum ErrorCode {
     USER_ALREADY_EXIST(406, "用户已存在", ""),
     USER_NOT_LOGIN(407, "用户未登录", ""),
     NULL_ERROR(409,"空参数",""),
+    NO_AUTH(401,"权限不足",""),
     System_ERROR(408, "系统错误", "");
     private final int code;
     private final String msg;
