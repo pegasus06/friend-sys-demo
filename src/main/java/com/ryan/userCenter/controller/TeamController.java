@@ -33,8 +33,7 @@ public class TeamController {
     @Resource
     private UserService userService;
 
-    @Resource
-    private RedisTemplate redisTemplate;
+
 
     @Resource
     private TeamService teamService;
