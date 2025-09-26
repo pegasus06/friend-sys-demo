@@ -36,11 +36,11 @@ public class PreCacheJob {
         RLock lock = redissonClient.getLock("ryan:precacheJob:doCache:lock");
 
         try {
-            // 尝试获取锁，等待5秒，锁持有300秒后自动释放
+            // 尝试获取锁，等待5秒，锁持有300秒后自动释放，看门狗机制
             if (lock.tryLock(5, 300, TimeUnit.SECONDS)) {
                 for (long userId : mainUserList) {
                     QueryWrapper<User> wrapper = new QueryWrapper<>();
-                    wrapper.eq("userId", userId);  // 使用eq
+                    wrapper.eq("userId", userId);
 
                     Page<User> page = userService.page(new Page<>(1, 20), wrapper);
 
