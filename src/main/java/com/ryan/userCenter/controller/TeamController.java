@@ -10,6 +10,7 @@ import com.ryan.userCenter.domain.User;
 import com.ryan.userCenter.domain.request.TeamAddRequest;
 import com.ryan.userCenter.domain.dto.TeamQuery;
 import com.ryan.userCenter.domain.request.TeamJoinRequest;
+import com.ryan.userCenter.domain.request.TeamQuitRequest;
 import com.ryan.userCenter.exception.BusinessException;
 import com.ryan.userCenter.service.TeamService;
 import com.ryan.userCenter.service.UserService;
@@ -131,6 +132,19 @@ public class TeamController {
         }
         User loginUser = userService.getLoginUser(request);
         boolean result = teamService.joinTeam(teamJoinRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    @PostMapping
+    public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+        if (teamQuitRequest == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean result = teamService.deleteTeam(teamQuitRequest.getTeamId(), loginUser);
+        if (!result) {
+            throw new BusinessException(ErrorCode.System_ERROR, "退出失败");
+        }
         return ResultUtils.success(result);
     }
 }
