@@ -7,22 +7,29 @@ import com.ryan.userCenter.common.ErrorCode;
 import com.ryan.userCenter.common.ResultUtils;
 import com.ryan.userCenter.domain.Team;
 import com.ryan.userCenter.domain.User;
+import com.ryan.userCenter.domain.UserTeam;
 import com.ryan.userCenter.domain.request.TeamAddRequest;
 import com.ryan.userCenter.domain.dto.TeamQuery;
 import com.ryan.userCenter.domain.request.TeamJoinRequest;
 import com.ryan.userCenter.domain.request.TeamQuitRequest;
+import com.ryan.userCenter.domain.vo.TeamUserVO;
 import com.ryan.userCenter.exception.BusinessException;
 import com.ryan.userCenter.service.TeamService;
 import com.ryan.userCenter.service.UserService;
+import com.ryan.userCenter.service.UserTeamService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -34,9 +41,10 @@ public class TeamController {
     private UserService userService;
 
 
-
     @Resource
     private TeamService teamService;
+    @Autowired
+    private UserTeamService userTeamService;
 
     @PostMapping("/add")
     public BaseResponse<Long> addTeam(@RequestBody Team team) {
@@ -134,7 +142,7 @@ public class TeamController {
         return ResultUtils.success(result);
     }
 
-    @PostMapping
+    @PostMapping("/quit")
     public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
         if (teamQuitRequest == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
@@ -145,6 +153,50 @@ public class TeamController {
             throw new BusinessException(ErrorCode.System_ERROR, "退出失败");
         }
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 获取我创建的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/create")
+    public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        teamQuery.setUserId(loginUser.getId());
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
+    }
+
+
+    /**
+     * 获取我加入的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/join")
+    public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getId());
+        //写法2，sql操作,避免使用stream流
+        //queryWrapper.select("DISTINCT teamId").eq("userId", loginUser.getId());
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        Set<Long> teamIdSet = userTeamList.stream().map(UserTeam::getTeamid).collect(Collectors.toSet());
+        List<Long> idList = new ArrayList<>(teamIdSet);
+        teamQuery.setIdList(idList);
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
     }
 }
 
