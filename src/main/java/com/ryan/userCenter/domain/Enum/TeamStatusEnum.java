@@ -1,4 +1,4 @@
-package com.ryan.userCenter.Enum;
+package com.ryan.userCenter.domain.Enum;
 
 
 /**
