@@ -24,4 +24,6 @@ public interface UserService extends IService<User> {
     User getLoginUser(HttpServletRequest request);
     boolean isAdmin(HttpServletRequest request);
     boolean isAdmin(User user);
+
+    List<User> matchUsers(long num,User user);
 }

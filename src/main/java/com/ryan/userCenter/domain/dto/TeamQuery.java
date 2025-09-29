@@ -14,8 +14,6 @@ import java.util.List;
  * @TableName team
  */
 @EqualsAndHashCode(callSuper = true)
-@Data
-@Builder
 public class TeamQuery extends PageRequest {
     /**
      * id
@@ -57,8 +55,71 @@ public class TeamQuery extends PageRequest {
      */
     private Integer status;
 
-    @Builder
-    public TeamQuery(int pageNumber, int pageSize, Sort sort) {
+    protected TeamQuery(int pageNumber, int pageSize, Sort sort) {
         super(pageNumber, pageSize, sort);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Long> getIdList() {
+        return idList;
+    }
+
+    public void setIdList(List<Long> idList) {
+        this.idList = idList;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getMaxNum() {
+        return maxNum;
+    }
+
+    public void setMaxNum(Integer maxNum) {
+        this.maxNum = maxNum;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

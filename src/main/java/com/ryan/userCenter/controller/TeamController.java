@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/team")
 @Slf4j
-public class TeamController {
+public class    TeamController {
 
     @Resource
     private UserService userService;
